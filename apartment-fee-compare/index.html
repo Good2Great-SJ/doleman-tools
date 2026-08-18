@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>아파트 관리비 단가 비교 계산기</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;background:#f4f7f9;color:#13253d;font-family:Pretendard,"Noto Sans KR",Arial,sans-serif}body{padding:18px}.tool{width:100%;max-width:760px;margin:0 auto;background:#fff;border:1px solid #dce6eb;border-radius:20px;padding:26px;box-shadow:0 10px 30px rgba(14,43,66,.08)}h1{font-size:25px;line-height:1.35;margin:0 0 8px}p{font-size:15px;line-height:1.7;margin:0 0 20px;color:#536575}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-weight:800;font-size:15px;margin:0 0 7px}input{display:block;width:100%;min-width:0;border:1px solid #bacbd4;border-radius:11px;padding:14px;font-size:17px;color:#13253d;background:#fff}input:focus{outline:3px solid rgba(18,147,143,.18);border-color:#12938f}button{width:100%;margin-top:18px;border:0;border-radius:12px;padding:15px;background:#0d6670;color:#fff;font-size:17px;font-weight:800;cursor:pointer}.result{display:none;margin-top:20px;border-radius:15px;background:#eef8f7;padding:18px}.result.show{display:block}.result h2{font-size:19px;margin:0 0 12px}.row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #d2e7e4;font-size:15px}.row:last-child{border-bottom:0}.row strong{text-align:right;color:#0a575f}.warn{margin-top:14px;padding:13px 14px;border-radius:10px;background:#fff2ef;color:#8b3025;font-size:14px;line-height:1.65}.note{margin-top:16px;color:#667784;font-size:13px;line-height:1.65}@media(max-width:560px){body{padding:10px}.tool{padding:20px 16px;border-radius:16px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}h1{font-size:22px}.row{align-items:flex-start}.row strong{max-width:55%}}
+  </style>
+</head>
+<body>
+  <main class="tool">
+    <h1>우리 집 관리비와 K-apt 단가 비교</h1>
+    <p>고지서의 실제 청구액과 K-apt의 ㎡당 공개 단가를 같은 면적 기준으로 맞춰 봅니다.</p>
+    <div class="grid">
+      <div class="field"><label for="bill">우리 집 관리비 합계(원)</label><input id="bill" inputmode="numeric" placeholder="예: 210000"></div>
+      <div class="field"><label for="area">전용면적(㎡)</label><input id="area" inputmode="decimal" placeholder="예: 84.86"></div>
+      <div class="field full"><label for="rate">K-apt에서 본 합계 단가(원/㎡)</label><input id="rate" inputmode="numeric" placeholder="예: 2540"></div>
+    </div>
+    <button type="button" id="calc">같은 면적 기준으로 비교하기</button>
+    <section class="result" id="result" aria-live="polite">
+      <h2>비교 결과</h2>
+      <div class="row"><span>우리 집 실제 단가</span><strong id="myRate">-</strong></div>
+      <div class="row"><span>K-apt 단가×우리 집 면적</span><strong id="estimate">-</strong></div>
+      <div class="row"><span>실제 청구액과의 차이</span><strong id="diff">-</strong></div>
+      <div class="row"><span>차이율</span><strong id="pct">-</strong></div>
+      <div class="warn">차이가 난다고 곧바로 과다 청구는 아닙니다. 발생월, 면적 기준, 세대 사용량, 할인·정산, 잡수입 차감 여부를 순서대로 확인하세요.</div>
+    </section>
+    <div class="note">계산값은 비교를 돕는 참고치입니다. K-apt 공개값은 단지 전체의 잡수입 차감 전 금액을 기준으로 하므로 세대별 고지서와 다를 수 있습니다.</div>
+  </main>
+  <script>
+    const n=v=>Number(String(v).replace(/[^0-9.]/g,''));
+    const won=v=>Math.round(v).toLocaleString('ko-KR')+'원';
+    document.getElementById('calc').addEventListener('click',()=>{
+      const bill=n(document.getElementById('bill').value),area=n(document.getElementById('area').value),rate=n(document.getElementById('rate').value);
+      if(!(bill>0&&area>0&&rate>0)){alert('세 항목을 모두 0보다 큰 숫자로 입력해 주세요.');return;}
+      const my=bill/area,est=area*rate,diff=bill-est,pct=diff/est*100;
+      document.getElementById('myRate').textContent=won(my)+'/㎡';
+      document.getElementById('estimate').textContent=won(est);
+      document.getElementById('diff').textContent=(diff>=0?'+':'−')+won(Math.abs(diff));
+      document.getElementById('pct').textContent=(pct>=0?'+':'')+pct.toFixed(1)+'%';
+      document.getElementById('result').classList.add('show');
+    });
+  </script>
+</body>
+</html>
